@@ -22,55 +22,55 @@ O objetivo não é decorar definições, e sim demonstrar que você entende os c
 ### Questão 1 — O que é um "agent"?
 O que é um "agent" (agente de IA)? Explique com suas próprias palavras e dê um exemplo de situação em que faz mais sentido usar um agente do que um chat comum.
 
-**Sua resposta:**
+Um agent é uma IA que não só responde, mas age: recebe um objetivo, decide os passos, usa ferramentas (ler e editar arquivos, rodar comandos, pesquisar) e avalia o resultado de cada ação antes de seguir, em ciclo, até concluir. Um chat comum só devolve texto e depende de mim para executar e testar. Faz mais sentido usar um agente quando a tarefa exige várias ações no código, por exemplo: "adicione uma função Remover, compile e confirme que não quebrou nada". Foi o que fiz neste projeto com o Claude Code: ele leu o Program.cs, editou e rodou o dotnet build sozinho.
 
 
 ### Questão 2 — O que são guidelines?
 O que são "guidelines" (diretrizes) ao usar uma IA generativa? Qual é o papel delas na qualidade das respostas geradas pelo modelo?
 
-**Sua resposta:**
+Guidelines são as regras e o contexto fixos que eu dou para a IA seguir: padrões de código, tom, o que pode e o que não pode fazer. Elas reduzem a "adivinhação" do modelo, deixando as respostas mais consistentes e alinhadas ao projeto. Sem guidelines, a IA tende a usar o estilo dela (criar classes, trocar estruturas, adicionar pacotes); com elas, segue o padrão já existente e eu preciso corrigir menos.
 
 
 ### Questão 4 — Escolha de modelo e nível de esforço
 Qual modelo de IA utilizar para cada tipo de tarefa? Dê um exemplo de tarefa simples e outra mais complexa, explicando como você escolheria o modelo em cada caso. O que é o "nível de esforço" (effort level) e quando faz sentido aumentá-lo ou diminuí-lo?
 
-**Sua resposta:**
+Para tarefas simples e repetitivas (renomear variáveis, gerar um texto curto, explicar um erro de compilação) uso um modelo menor e mais rápido, como o Haiku ou o Sonnet — é barato e suficiente. Para tarefas complexas (projetar a arquitetura do TCC, depurar um bug que envolve vários arquivos, revisar segurança) uso um modelo mais capaz, como o Opus. O nível de esforço (effort level) define quanto o modelo "pensa" antes de responder. Aumento quando a tarefa exige raciocínio em várias etapas ou quando a primeira resposta veio rasa; diminuo em perguntas diretas, onde mais esforço só gasta tempo e tokens.
 
 
 ### Questão 5 — Como estruturar um bom prompt
 Descreva os elementos que tornam um prompt mais eficaz (ex.: contexto, objetivo, formato esperado, exemplos, restrições).
 
-**Sua resposta:**
+Um bom prompt tem: (1) contexto — qual é o projeto, a tecnologia e a situação; (2) objetivo claro — o que exatamente eu quero; (3) formato esperado — código, lista, tabela, tamanho; (4) exemplos quando o formato é específico; e (5) restrições — o que não fazer. Exemplo: "No meu console app em C# .NET 8 (contexto), crie uma função ListarPendentes (objetivo), seguindo o padrão das funções locais existentes, sem criar classes (restrição), e mostre só o trecho alterado (formato)."
 
 
 ### Questão 6 — Iteração de prompt
 O que significa "iterar" um prompt? Por que a primeira resposta de uma IA geralmente não é a versão final, e como você usaria a resposta recebida para melhorar o próximo prompt?
 
-**Sua resposta:**
+Iterar é refinar o prompt em rodadas, usando a resposta anterior como diagnóstico. A primeira resposta raramente é a final porque a IA preenche com suposições o que eu não especifiquei. Eu leio o resultado, identifico o que ficou diferente do esperado (estilo errado, faltou validação, formato longo demais) e transformo isso em instrução no próximo prompt. Na minha evidência, por exemplo, percebi que a IA não rodou o dotnet run; a melhoria seria colocar esse passo de forma explícita na skill.
 
 
 ### Questão 7 — Zero-shot vs. few-shot
 Qual é a diferença entre um prompt "zero-shot" e um prompt "few-shot"? Dê um exemplo de situação em que vale a pena incluir exemplos dentro do próprio prompt.
 
-**Sua resposta:**
+Zero-shot é pedir a tarefa sem nenhum exemplo; few-shot é incluir alguns exemplos do resultado esperado dentro do próprio prompt. Vale a pena usar few-shot quando o formato é específico e difícil de descrever só com palavras. Exemplo: padronizar mensagens de commit do TCC — mostro 2 ou 3 commits no formato "feat: ...", "docs: ...", "fix: ..." e peço que a IA gere as próximas seguindo o mesmo padrão.
 
 
 ### Questão 8 — Memória e contexto entre sessões
 O que significa uma IA "ter memória" entre sessões diferentes de conversa? Por que, em um projeto longo como o TCC, é importante decidir o que precisa ser "lembrado" e como fornecer esse contexto para a IA a cada nova conversa?
 
-**Sua resposta:**
+Por padrão, cada conversa nova começa do zero: a IA não lembra decisões, nomes ou padrões combinados em sessões anteriores. "Ter memória" significa ter um mecanismo para levar esse contexto adiante — arquivos como o CLAUDE.md, memória da ferramenta ou um resumo que eu colo no início. No TCC, que dura meses, isso é essencial: preciso decidir o que é permanente (stack, arquitetura, convenções, decisões já tomadas) e manter isso num arquivo de contexto. Assim não repito explicações e a IA não sugere algo que contradiz o que já foi decidido.
 
 
 ### Questão 9 — Avaliar a resposta da IA
 Antes de aplicar a sugestão de uma IA no seu projeto, como você verifica se ela está correta? Descreva pelo menos 2 formas práticas de checar a confiabilidade de uma resposta gerada por IA.
 
-**Sua resposta:**
+Não aplico nada sem conferir. Formas práticas: (1) compilar e executar — rodar dotnet build e dotnet run e testar o comportamento, inclusive casos de erro (ex.: remover um Id que não existe); (2) revisar o diff linha a linha antes do commit, para ver exatamente o que mudou e se a IA mexeu em algo fora do pedido; (3) conferir na documentação oficial (Microsoft Learn, docs da biblioteca) quando a IA cita uma API ou configuração, porque ela pode inventar métodos que não existem.
 
 
 ### Questão 10 — Dividir tarefas complexas em etapas
 Por que, em tarefas mais complexas, pode ser melhor dividir o trabalho em um fluxo de etapas (ex.: primeiro classificar/organizar, depois processar, depois revisar) em vez de pedir tudo em um único prompt? Dê um exemplo aplicado a uma tarefa do seu TCC.
 
-**Sua resposta:**
+Em tarefas complexas, um único prompt faz a IA tentar resolver tudo de uma vez e os erros se acumulam sem que eu perceba. Dividindo em etapas, cada parte é menor, mais fácil de conferir e corrigir antes de seguir. Exemplo no projeto final (GlicHelp, app de acompanhamento de glicemia): em vez de pedir "crie o módulo de registros de glicemia", eu faria: 1) pedir para a IA levantar e organizar os campos e regras (valor, data/hora, jejum ou pós-refeição, limites de alerta); 2) gerar o CRUD com base nessa estrutura aprovada; 3) pedir uma revisão focada em validação e casos de erro; 4) testar e só então integrar à interface.
 
 
 > **Questão 3** (como escrever um bom CLAUDE.md) e a **Questão 11** (prática, evidência de uso real da IA) são respondidas nos próprios arquivos `CLAUDE.md` e `EVIDENCIAS.md` — veja a parte prática abaixo.
